@@ -57,11 +57,13 @@ ANDROID_KMSGLOG_SHELL = '%s %s %s shell cat /proc/kmsg'
 ANDROID_TOMBSTONE_PATH = '/data/tombstones'
 '''android native process crash log path'''
 
+
 def _uniqueID():
     '''
     return a unique id of test session.
     '''
     return str(uuid.uuid1())
+
 
 def _getServerConfiguration(config):
     ret = {}
@@ -74,8 +76,9 @@ def _getServerConfiguration(config):
                 'session_update': cf.get('server', 'session_update'),
                 'case_update': cf.get('server', 'case_update'),
                 'file_upload': cf.get('server', 'file_upload')
-               })
+                })
     return ret
+
 
 def _getDeviceConfiguration(config):
     ret = {}
@@ -86,14 +89,16 @@ def _getDeviceConfiguration(config):
                 'deviceid': cf.get('device', 'deviceid'),
                 'screen_width': cf.get('device', 'screen_width'),
                 'screen_height': cf.get('device', 'screen_height')
-               })
+                })
     return ret
+
 
 def _time():
     '''
     generic time stamp format
     '''
     return str(datetime.datetime.now())
+
 
 def _reportTime(delay=0):
     '''
@@ -103,6 +108,7 @@ def _reportTime(delay=0):
         time.sleep(1)
     return time.strftime(REPORT_TIME_STAMP_FORMAT, time.localtime(time.time()))
 
+
 def _mkdir(path):
     '''
     create directory as path
@@ -110,6 +116,7 @@ def _mkdir(path):
     if not exists(path):
         os.makedirs(path)
     return path
+
 
 def _writeResultToFile(output, content):
     '''
@@ -121,12 +128,14 @@ def _writeResultToFile(output, content):
     except:
         logger.debug('error: zip folder')
 
+
 def _formatOutput(name, etype, err):
     '''
     change the output format of exception
     '''
     exception_text = traceback.format_exception(*err)
     return ''.join(exception_text).replace('\n', '\r\n')
+
 
 def _zipFolder(folder_name, file_name, includeEmptyDIr=False):
     '''
@@ -138,7 +147,7 @@ def _zipFolder(folder_name, file_name, includeEmptyDIr=False):
         for root, dirs, files in os.walk(folder_name):
             empty_dirs.extend([d for d in dirs if os.listdir(os.path.join(root, d)) == []])
             for name in files:
-                ziper.write(os.path.join(root , name), name)
+                ziper.write(os.path.join(root, name), name)
             if includeEmptyDIr:
                 for d in empty_dirs:
                     zif = zipfile.ZipInfo(os.path.join(root, d) + os.sep)
@@ -152,11 +161,13 @@ def _zipFolder(folder_name, file_name, includeEmptyDIr=False):
         if ziper != None:
             ziper.close()
 
+
 def _isExecutable(exe):
     '''
     return True if program is executable.
     '''
     return os.path.isfile(exe) and os.access(exe, os.X_OK)
+
 
 def _findExetuable(program):
     '''
@@ -175,12 +186,13 @@ def _findExetuable(program):
                 return exe_file
     raise Exception(LOCATION_NOT_FOUND_EXCEPTION % program)
 
+
 def _makeLog(path, bridge='adb', serial=None, result='failure'):
     '''
     pull log/snapshot from device to local report folder
     '''
     path = _mkdir(path)
-    exe  = _findExetuable(bridge)
+    exe = _findExetuable(bridge)
     snapshot_name = '%s%s%s' % (result, '.', 'png')
     try:
         if serial:
@@ -194,13 +206,15 @@ def _makeLog(path, bridge='adb', serial=None, result='failure'):
             AdbCommand('%s pull %s %s' % (exe, ANDROID_TOMBSTONE_PATH, path)).run()
             AdbCommand('%s shell rm %s%s' % (exe, ANDROID_TOMBSTONE_PATH, '/*')).run()
     except Exception, e:
-        logger.debug('snapshot error:\n'+str(e))
+        logger.debug('snapshot error:\n' + str(e))
     _zipFolder(join(dirname(path), 'logs'), join(dirname(path), 'log.zip'))
+
 
 class TestCounter(object):
     '''
     Test session counter.
     '''
+
     def __init__(self, sid=None, tid=0, cid=0, cycles=None):
         self.__sid = sid if sid else _uniqueID()
         self.__tid = tid
@@ -230,7 +244,7 @@ class TestCounter(object):
 
     def progress(self):
         if self.__total_cycle:
-            return '%0.2f' % (float(self.__cid)/float(self.__total_cycle))
+            return '%0.2f' % (float(self.__cid) / float(self.__total_cycle))
         else:
             return 'unkown'
 
@@ -252,12 +266,14 @@ class TestCounter(object):
         '''
         self.__tid = 0
 
+
 class TestCaseContext(object):
     '''
     Test case context. test case extends from unittest.TestCase can refer it by self.contexts.
     The instance of it is injected to the context of test case instance by plugin when prepareTestCase.
     
     '''
+
     def __init__(self, output_failures, output_errors, output_pass):
         self.__output_failures = output_failures
         self.__output_errors = output_errors
@@ -308,7 +324,8 @@ class TestCaseContext(object):
 
     @property
     def case_report_dir_name(self):
-        self.__case_report_dir_name = '%s%s%s' % (self.__case_dir_name, '@', str(self.__case_start_time).replace(' ', '_'))
+        self.__case_report_dir_name = '%s%s%s' % (
+        self.__case_dir_name, '@', str(self.__case_start_time).replace(' ', '_'))
         return self.__case_report_dir_name
 
     @property
@@ -365,6 +382,7 @@ class TestCaseContext(object):
     def expect(self):
         return self.__expect
 
+
 class Timer(object):
     def __init__(self, duration):
         self.__starttime = datetime.datetime.now()
@@ -372,15 +390,18 @@ class Timer(object):
 
     def alive(self):
         isAlive = (datetime.datetime.now() - self.__starttime) < self.__duration
-        return  isAlive
+        return isAlive
 
     def progress(self):
-        p = '%0.2f' % (float((datetime.datetime.now() - self.__starttime).total_seconds())/(self.__duration.total_seconds()))
+        p = '%0.2f' % (
+        float((datetime.datetime.now() - self.__starttime).total_seconds()) / (self.__duration.total_seconds()))
         if float(p) <= float(0):
             return '0.01'
         if float(p) > float(1.0):
             return '1.00'
-        else: return p
+        else:
+            return p
+
 
 class LogHandler(object):
     def __init__(self, bridge='adb', serial=None):
@@ -417,11 +438,13 @@ class LogHandler(object):
         if self.__cache_thread:
             try:
                 self.__cache_thread.stop()
-            except: pass
+            except:
+                pass
         if self.__logger_proc:
             try:
                 self.__logger_proc.kill()
-            except: pass
+            except:
+                pass
 
     def check(self):
         pass
@@ -444,6 +467,7 @@ class LogHandler(object):
 
     def drop(self):
         self.__cache_queue.queue.clear()
+
 
 class DmesgLogHandler(object):
     def __init__(self, bridge='adb', serial=None):
@@ -480,11 +504,13 @@ class DmesgLogHandler(object):
         if self.__cache_thread:
             try:
                 self.__cache_thread.stop()
-            except: pass
+            except:
+                pass
         if self.__logger_proc:
             try:
                 self.__logger_proc.kill()
-            except: pass
+            except:
+                pass
 
     def check(self):
         pass
@@ -508,11 +534,12 @@ class DmesgLogHandler(object):
     def drop(self):
         self.__cache_queue.queue.clear()
 
+
 class LogCacheWrapper(threading.Thread):
     def __init__(self, fd, queue, cmd):
         threading.Thread.__init__(self)
         self.__fd = fd
-        #self.daemon = True
+        # self.daemon = True
         self.__cmd = cmd
         self.__queue = queue
         self.__stop = False
@@ -538,6 +565,7 @@ class LogCacheWrapper(threading.Thread):
             if logger_proc.poll() == None:
                 return logger_proc
 
+
 class ReporterPlugin(nose.plugins.Plugin):
     """
     output test result local and report to server.
@@ -559,7 +587,7 @@ class ReporterPlugin(nose.plugins.Plugin):
         Called to allow plugin to register command line options with the parser. DO NOT return a value from this method unless you want to stop all other plugins from setting their options.        
         """
         super(ReporterPlugin, self).options(parser, env)
-        parser.add_option('--file-name', 
+        parser.add_option('--file-name',
                           dest='file_name', default='result.txt',
                           help="save output file to this directory")
         parser.add_option('--directory', action='store_true',
@@ -570,14 +598,14 @@ class ReporterPlugin(nose.plugins.Plugin):
         parser.add_option('--livereport', action='store_true',
                           dest='livereport', default=False,
                           help="switcher of uploading result to live report server. default is enable the feature")
-        parser.add_option('--server-config', action='store',  metavar="FILE",
+        parser.add_option('--server-config', action='store', metavar="FILE",
                           dest='livereport_config', default='server.config',
                           help="specify the live report server configuration file path")
-        parser.add_option('--client-config', action='store',  metavar="FILE",
+        parser.add_option('--client-config', action='store', metavar="FILE",
                           dest='device_config', default='client.config',
                           help="specify the device config file path")
         parser.add_option('--duration', dest='duration', type='string', metavar="STRING",
-                          action='callback', callback=self.__validate_duration, 
+                          action='callback', callback=self.__validate_duration,
                           help='The minumum test duration before ending the test.\
                                   Here format must follow next format: xxDxxHxxMxxS.\
                                   e.g. --duration=2D09H30M12S, which means 2 days, 09 hours, 30 minutes and 12 seconds')
@@ -635,16 +663,17 @@ class ReporterPlugin(nose.plugins.Plugin):
         if not self.__configuration:
             if self.opt.livereport:
                 if not exists(options.livereport_config):
-                    raise Exception("couldn't find the report server local setting file: '%s'" % options.livereport_config)
+                    raise Exception(
+                        "couldn't find the report server local setting file: '%s'" % options.livereport_config)
                 self.__configuration.update(_getServerConfiguration(options.livereport_config))
             if not exists(options.device_config):
                 raise Exception("couldn't find device configuration file: '%s'" % options.device_config)
-            #self.__configuration.update(_getServerConfiguration(options.livereport_config))
+            # self.__configuration.update(_getServerConfiguration(options.livereport_config))
             self.__configuration.update(_getDeviceConfiguration(options.device_config))
             self.__configuration.update({'planname': os.path.basename(self.conf.options.plan_file)})
         self.result_properties = {'payload': None, 'extras': None}
         if self.opt.livereport and not self.__report_client:
-            self.__report_client =  ReportClient(**self.__configuration)
+            self.__report_client = ReportClient(**self.__configuration)
             self.token = self.__report_client.regist()
             if not self.token:
                 raise Exception("couldn't get token from report server. check report server settings")
@@ -702,7 +731,8 @@ class ReporterPlugin(nose.plugins.Plugin):
         if not self.test_start_time:
             self.test_start_time = _reportTime()
         self.opt.directory = self.conf.workingDir
-        self._report_path = _mkdir(join(join(self.opt.directory, 'report'), str(self.test_start_time).replace(' ', '_')))
+        self._report_path = _mkdir(
+            join(join(self.opt.directory, 'report'), str(self.test_start_time).replace(' ', '_')))
         self._pass_report_path = _mkdir(join(self._report_path, 'pass'))
         self._fail_report_path = _mkdir(join(self._report_path, 'fail'))
         self._error_report_path = _mkdir(join(self._report_path, 'error'))
@@ -766,7 +796,7 @@ class ReporterPlugin(nose.plugins.Plugin):
                                                   'log': ctx.fail_log,
                                                   'expect': ctx.expect,
                                                   }
-                                      })
+                                       })
 
     def handleError(self, test, err):
         '''
@@ -789,7 +819,7 @@ class ReporterPlugin(nose.plugins.Plugin):
         self.result_properties.update({'extras': {'screenshot_at_last': ctx.error_screenshot_at_failure,
                                                   'log': ctx.error_log,
                                                   'expect': ctx.expect,
-                                                 }
+                                                  }
                                        })
 
     def addFailure(self, test, err, capt=None, tbinfo=None):
@@ -801,12 +831,12 @@ class ReporterPlugin(nose.plugins.Plugin):
             self.previous_end_time = etime
         ctx.case_end_time = self.previous_end_time
         self.result_properties.update({'payload': {'tid': self.tid,
-                                                  'casename': ctx.case_dir_name,
-                                                  'starttime': ctx.case_start_time,
-                                                  'endtime': ctx.case_end_time,
-                                                  'result': 'fail',
-                                                  'trace':_formatOutput(ctx.case_dir_name, 'fail', err)
-                                                  }
+                                                   'casename': ctx.case_dir_name,
+                                                   'starttime': ctx.case_start_time,
+                                                   'endtime': ctx.case_end_time,
+                                                   'result': 'fail',
+                                                   'trace': _formatOutput(ctx.case_dir_name, 'fail', err)
+                                                   }
                                        })
         trace_log_path = join(ctx.user_log_dir, 'trace.txt')
         try:
@@ -817,11 +847,11 @@ class ReporterPlugin(nose.plugins.Plugin):
         try:
             _makeLog(path=ctx.user_log_dir, serial=self.__configuration['deviceid'])
         except Exception, e:
-            logger.debug('error: +\n'+str(e))
+            logger.debug('error: +\n' + str(e))
         try:
             shutil.move(ctx.case_report_tmp_dir, self._fail_report_path)
         except Exception, e:
-            logger.debug('error: +\n'+str(e))
+            logger.debug('error: +\n' + str(e))
         if self.__timer and not self.__timer.alive():
             self.conf.stopOnError = True
         if self.opt.livereport:
@@ -836,12 +866,12 @@ class ReporterPlugin(nose.plugins.Plugin):
             self.previous_end_time = etime
         ctx.case_end_time = self.previous_end_time
         self.result_properties.update({'payload': {'tid': self.tid,
-                                                  'casename': ctx.case_dir_name,
-                                                  'starttime': ctx.case_start_time,
-                                                  'endtime': ctx.case_end_time,
-                                                  'result': 'error',
-                                                  'trace':_formatOutput(ctx.case_dir_name, 'error', err)
-                                                  }
+                                                   'casename': ctx.case_dir_name,
+                                                   'starttime': ctx.case_start_time,
+                                                   'endtime': ctx.case_end_time,
+                                                   'result': 'error',
+                                                   'trace': _formatOutput(ctx.case_dir_name, 'error', err)
+                                                   }
                                        })
 
         trace_log_path = join(ctx.user_log_dir, 'trace.txt')
@@ -853,11 +883,11 @@ class ReporterPlugin(nose.plugins.Plugin):
         try:
             _makeLog(path=ctx.user_log_dir, serial=self.__configuration['deviceid'])
         except Exception, e:
-            logger.debug('error: +\n'+str(e))
+            logger.debug('error: +\n' + str(e))
         try:
             shutil.move(ctx.case_report_tmp_dir, self._error_report_path)
         except Exception, e:
-            logger.debug('error: +\n'+str(e))
+            logger.debug('error: +\n' + str(e))
         if self.__timer and not self.__timer.alive():
             self.conf.stopOnError = True
         if self.opt.livereport:
@@ -877,13 +907,13 @@ class ReporterPlugin(nose.plugins.Plugin):
                                                    'starttime': ctx.case_start_time,
                                                    'endtime': ctx.case_end_time,
                                                    'result': 'pass'
-                                                  }
-                                      })
+                                                   }
+                                       })
         self.result_properties.update({'extras': {'screenshot_at_last': ctx.screenshot_at_pass,
                                                   'log': ctx.pass_log,
                                                   'expect': ctx.expect,
                                                   }
-                                      })
+                                       })
 
         try:
             log_file = join(ctx.user_log_dir, LOGCAT_FILE_NAME)
@@ -904,11 +934,11 @@ class ReporterPlugin(nose.plugins.Plugin):
         try:
             _makeLog(path=ctx.user_log_dir, serial=self.__configuration['deviceid'], result='pass')
         except Exception, e:
-            logger.debug('error: +\n'+str(e))
+            logger.debug('error: +\n' + str(e))
         try:
             shutil.move(ctx.case_report_tmp_dir, self._pass_report_path)
         except Exception, e:
-            logger.debug('error: +\n'+str(e))
+            logger.debug('error: +\n' + str(e))
         if self.__timer and not self.__timer.alive():
             self.conf.stopOnError = True
         if self.opt.livereport:
