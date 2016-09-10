@@ -9,29 +9,29 @@ from ConfigParser import ConfigParser
 import json, hashlib, math, time, threading, sys, os
 from os.path import dirname, abspath, join, exists, splitext, split
 
-
 REPORT_TIME_STAMP_FORMAT = '%Y-%m-%d %H:%M:%S'
 AUTH_REQ_TIMEOUT = 3
 REQ_TIMEOUT = 3
 
+
 ###authentication###
-#method: POST
-#request URI      : http://ats.borqs.com/smartapi/account/login
-#request header   : Content-Type: 'application/json', 'Accept': 'application/json'
-#request payload  : {'subc': 'login',
+# method: POST
+# request URI      : http://ats.borqs.com/smartapi/account/login
+# request header   : Content-Type: 'application/json', 'Accept': 'application/json'
+# request payload  : {'subc': 'login',
 #                   'data': {appid': 01, 'username': username, 'password': pwd}
 
-#response payload : {'result': ok|error, 'data': {'token': token}, 'msg': log_error}
+# response payload : {'result': ok|error, 'data': {'token': token}, 'msg': log_error}
 
 
 
 
 
 ###test session create###
-#method: POST
-#request URI      : http://ats.borqs.com/smartapi/group/<group_id>/test/<session_id>/create
-#request header   : Content-Type: 'application/json', 'Accept': 'application/json'
-#request payload  : { 'subc': 'create',
+# method: POST
+# request URI      : http://ats.borqs.com/smartapi/group/<group_id>/test/<session_id>/create
+# request header   : Content-Type: 'application/json', 'Accept': 'application/json'
+# request payload  : { 'subc': 'create',
 #                     'data':{ 'token': token,
 #                              'planname': plan_name,
 #                              'starttime': session_start_time,
@@ -42,34 +42,35 @@ REQ_TIMEOUT = 3
 #                            }
 #                    }
 
-#response payload : {'result': ok|error, msg': log_error}
+# response payload : {'result': ok|error, msg': log_error}
 
 ###create test case###
-#method: POST
-#request URI      : http://ats.borqs.com/smartapi/group/<group_id>/test/<session_sid>/case/<tid>/create
-#request header   : Content-Type: 'application/json', 'Accept': 'application/json'
-#request payload  : {'tid':tid, 'sid':session_id, 'casename': domain.case_name), 'starttime': case_start_time}}
-#response payload : {'result': ok|error, msg': log_error}
+# method: POST
+# request URI      : http://ats.borqs.com/smartapi/group/<group_id>/test/<session_sid>/case/<tid>/create
+# request header   : Content-Type: 'application/json', 'Accept': 'application/json'
+# request payload  : {'tid':tid, 'sid':session_id, 'casename': domain.case_name), 'starttime': case_start_time}}
+# response payload : {'result': ok|error, msg': log_error}
 
 ###update test case###
-#method: POST
-#request URI      : http://ats.borqs.com/smartapi/group/<group_id>/test/<session_id>/case/<tid>/update
-#request header   : Content-Type: 'application/json', 'Accept': 'application/json'
-#request payload  : {'tid':tid, 'result': pass|fail|error|timeout, 'time': case_end_time, 'traceinfo': trace_stack_output}
-#response payload : {'result': ok|error, msg': log_error}
+# method: POST
+# request URI      : http://ats.borqs.com/smartapi/group/<group_id>/test/<session_id>/case/<tid>/update
+# request header   : Content-Type: 'application/json', 'Accept': 'application/json'
+# request payload  : {'tid':tid, 'result': pass|fail|error|timeout, 'time': case_end_time, 'traceinfo': trace_stack_output}
+# response payload : {'result': ok|error, msg': log_error}
 
 ###upload file###
-#method: PUT
-#request URI      : http://ats.borqs.com/smartapi/group/<group_id>/test/<session_id>/case/<tid>/fileupload
-#request header   : Content-Type: 'image/png' | Content-Type: 'application/zip', 'Accept': 'application/json'
-#request payload  : {'file': file_data }
-#response payload : {'result': ok|error, msg': log_error}
+# method: PUT
+# request URI      : http://ats.borqs.com/smartapi/group/<group_id>/test/<session_id>/case/<tid>/fileupload
+# request header   : Content-Type: 'image/png' | Content-Type: 'application/zip', 'Accept': 'application/json'
+# request payload  : {'file': file_data }
+# response payload : {'result': ok|error, msg': log_error}
 
 def reporttime():
     '''
     return time stamp format with REPORT_TIME_STAMP_FORMAT
     '''
     return time.strftime(REPORT_TIME_STAMP_FORMAT, time.localtime(time.time()))
+
 
 def getContentType(filename):
     '''
@@ -83,6 +84,7 @@ def getContentType(filename):
     if ext == 'zip': return 'application/zip'
     return None
 
+
 def fbuffer(f, chunk_size=1024):
     '''
     read source file. default chunk size is 1024b.
@@ -92,12 +94,12 @@ def fbuffer(f, chunk_size=1024):
         if not chunk: break
         yield chunk
 
+
 class MemoryZip(object):
- 
     def __init__(self):
         # Create the a memory file-like object
         self.memory_zip = StringIO.StringIO()
- 
+
     def appendFile(self, file_path, file_name=None):
         '''
         read local source file and add into memory
@@ -109,7 +111,7 @@ class MemoryZip(object):
         c = open(file_path, "rb").read()
         self.append(fn, c)
         return self
- 
+
     def append(self, filename_in_zip, file_contents):
         '''
         Appends a file with name filename_in_zip and contents of
@@ -124,14 +126,14 @@ class MemoryZip(object):
         for zfile in zf.filelist:
             zfile.create_system = 0
         return self
- 
+
     def read(self):
         '''
         Returns a string with the contents of the in-memory zip
         '''
         self.memory_zip.seek(0)
         return self.memory_zip.read()
- 
+
     def writetofile(self, filename):
         '''
         Writes the in-memory zip to a file.
@@ -139,9 +141,9 @@ class MemoryZip(object):
         f = file(filename, "wb")
         f.write(self.read())
         f.close()
- 
-class Authentication(object):
 
+
+class Authentication(object):
     @staticmethod
     def regist(url, session_info, **kwargs):
         '''
@@ -171,7 +173,7 @@ class Authentication(object):
         m = hashlib.md5()
         m.update(password)
         pwd = m.hexdigest()
-        values = json.dumps({'appid':'01', 'username':username, 'password':pwd})
+        values = json.dumps({'appid': '01', 'username': username, 'password': pwd})
         headers = {'content-type': 'application/json', 'accept': 'application/json'}
         r = request(method='post', url=url, data=values, headers=headers, timeout=AUTH_REQ_TIMEOUT)
         return r and r['data']['token'] or None
@@ -193,29 +195,33 @@ def retry(tries, delay=1, backoff=2):
     @return: True if the function return True. else return False
     '''
 
-    if backoff <= 1: 
+    if backoff <= 1:
         raise ValueError("backoff must be greater than 1")
     tries = math.floor(tries)
-    if tries < 0: 
+    if tries < 0:
         raise ValueError("tries must be 0 or greater")
-    if delay <= 0: 
+    if delay <= 0:
         raise ValueError("delay must be greater than 0")
+
     def deco_retry(f):
         def f_retry(*args, **kwargs):
-            mtries, mdelay = tries, delay # make mutable
-            rv = f(*args, **kwargs) # first attempt
+            mtries, mdelay = tries, delay  # make mutable
+            rv = f(*args, **kwargs)  # first attempt
             while mtries > 0:
-                if rv != None or type(rv) == str or type(rv) == dict: # Done on success ..
+                if rv != None or type(rv) == str or type(rv) == dict:  # Done on success ..
                     return rv
-                mtries -= 1      # consume an attempt
-                time.sleep(mdelay) # wait...
+                mtries -= 1  # consume an attempt
+                time.sleep(mdelay)  # wait...
                 mdelay *= backoff  # make future wait longer
-                rv = f(*args, **kwargs) # Try again
+                rv = f(*args, **kwargs)  # Try again
             print "couldn't connect to report server. check the report server settings in 'livereport.config' and try again"
             sys.exit(1)
-            return False # Ran out of tries
-        return f_retry # true decorator -> decorated function
+            return False  # Ran out of tries
+
+        return f_retry  # true decorator -> decorated function
+
     return deco_retry  # @retry(arg[, ...]) -> true decorator
+
 
 @retry(3)
 def request(method, url, data=None, **kwargs):
@@ -236,28 +242,32 @@ def request(method, url, data=None, **kwargs):
         if r:
             ret = r.json()
     except requests.exceptions.Timeout, e:
-        #sys.stderr.write(str(e))
+        # sys.stderr.write(str(e))
         logger.debug(str(e))
         pass
-    except requests.exceptions.TooManyRedirects , e:
-        #sys.stderr.write(str(e))
+    except requests.exceptions.TooManyRedirects, e:
+        # sys.stderr.write(str(e))
         logger.debug(str(e))
         pass
-    except requests.exceptions.RequestException , e:
+    except requests.exceptions.RequestException, e:
         logger.debug(str(e))
-        #sys.stderr.write(str(e))
+        # sys.stderr.write(str(e))
         pass
     except Exception, e:
         logger.debug(str(e))
-        #sys.stderr.write(str(e))
+        # sys.stderr.write(str(e))
         pass
     return ret
 
+
 REQ_TIMEOUT = 3
+
+
 class ReportClient(object):
     '''
     client to communicate with server
     '''
+
     def __init__(self, config=None, **kwargs):
         '''
         init with server.config
@@ -284,12 +294,13 @@ class ReportClient(object):
         m = hashlib.md5()
         m.update(self.__dict__['password'])
         pwd = m.hexdigest()
-        values = json.dumps({'subc': 'login', 'data':{'appid':'01', 'username':self.__dict__['username'], 'password':pwd}})
+        values = json.dumps(
+            {'subc': 'login', 'data': {'appid': '01', 'username': self.__dict__['username'], 'password': pwd}})
         headers = {'content-type': 'application/json', 'accept': 'application/json'}
         auth_url = self.__dict__['auth']
         ret = request(method='post', url=auth_url, data=values, headers=headers, timeout=AUTH_REQ_TIMEOUT)
-        #OLD{u'results': {u'token': u'bdfbadaca1c514c3eafca6f2c4cb5c81', u'uid': u'51b8672e1ba1ee14235b03515c52c015'}}
-        #NEW{u'msg': u'', u'data': {u'token': u'306fddbabe37011903e8f103829afc68', u'uid': 2}, u'result': u'ok|error'}
+        # OLD{u'results': {u'token': u'bdfbadaca1c514c3eafca6f2c4cb5c81', u'uid': u'51b8672e1ba1ee14235b03515c52c015'}}
+        # NEW{u'msg': u'', u'data': {u'token': u'306fddbabe37011903e8f103829afc68', u'uid': 2}, u'result': u'ok|error'}
         try:
             self.token = ret['data']['token']
         except Exception, e:
@@ -306,11 +317,11 @@ class ReportClient(object):
                                   'starttime': self.conf.test_start_time
                                  }
         '''
-        self.session_id =  kwargs.pop('sid')
+        self.session_id = kwargs.pop('sid')
         url = self.__dict__['session_create'] % self.session_id
         headers = {'content-type': 'application/json', 'accept': 'application/json'}
-        #new style API
-        #values = { 'token': self.token,\
+        # new style API
+        # values = { 'token': self.token,\
         #           'subc':'create',\
         #           'data':{'planname':kwargs.pop('planname'),\
         #                   'starttime':kwargs.pop('starttime'),\
@@ -320,12 +331,15 @@ class ReportClient(object):
         #                                }\
         #                  }\
         #          }
-        deviceinfo = {'product':self.__dict__['product'], 'deviceid':self.__dict__['deviceid'], 'revision':self.__dict__['revision'], 'width':self.__dict__['screen_width'], 'height':self.__dict__['screen_height']}
+        deviceinfo = {'product': self.__dict__['product'], 'deviceid': self.__dict__['deviceid'],
+                      'revision': self.__dict__['revision'], 'width': self.__dict__['screen_width'],
+                      'height': self.__dict__['screen_height']}
         values = json.dumps({'subc': 'create',
-                             'token':self.token ,
-                             'data':{'planname':self.__dict__['planname'], 'starttime':kwargs.pop('starttime'), 'deviceinfo':deviceinfo}})
+                             'token': self.token,
+                             'data': {'planname': self.__dict__['planname'], 'starttime': kwargs.pop('starttime'),
+                                      'deviceinfo': deviceinfo}})
         ret = request(method='post', url=url, data=values, headers=headers, timeout=REQ_TIMEOUT)
-        #{u'msg': u'', u'data': {}, u'result': u'ok'}
+        # {u'msg': u'', u'data': {}, u'result': u'ok'}
         try:
 
             if ret['result'] == 'ok':
@@ -337,7 +351,7 @@ class ReportClient(object):
     def updateTestCase(self, **kwargs):
         result_url = self.__dict__['case_update'] % self.session_id
         file_url = self.__dict__['file_upload'] % (self.session_id, kwargs['payload']['tid'])
-        kwargs.update({'token':self.token, 'result_url': result_url, 'file_url': file_url})
+        kwargs.update({'token': self.token, 'result_url': result_url, 'file_url': file_url})
         UploadThread(**kwargs).start()
 
     def updateSession(self, **kwargs):
@@ -350,11 +364,11 @@ class ReportClient(object):
                                   'starttime': self.conf.test_start_time
                                  }
         '''
-        self.session_id =  kwargs.pop('sid')
+        self.session_id = kwargs.pop('sid')
         url = self.__dict__['session_update'] % self.session_id
         headers = {'content-type': 'application/json', 'accept': 'application/json'}
-        #new style API
-        #values = { 'token': self.token,\
+        # new style API
+        # values = { 'token': self.token,\
         #           'subc':'create',\
         #           'data':{'planname':kwargs.pop('planname'),\
         #                   'starttime':kwargs.pop('starttime'),\
@@ -364,12 +378,12 @@ class ReportClient(object):
         #                                }\
         #                  }\
         #          }
-        #sys.stderr.write(str(kwargs)+'\n')
+        # sys.stderr.write(str(kwargs)+'\n')
         values = json.dumps({'subc': 'update',
-                             'token':self.token ,
-                             'data' : kwargs})
+                             'token': self.token,
+                             'data': kwargs})
         ret = request(method='post', url=url, data=values, headers=headers, timeout=REQ_TIMEOUT)
-        #{u'msg': u'', u'data': {}, u'result': u'ok'}
+        # {u'msg': u'', u'data': {}, u'result': u'ok'}
         try:
 
             if ret['result'] == 'ok':
@@ -382,13 +396,14 @@ class UploadThread(threading.Thread):
     '''
     Thread for uploading result.
     '''
+
     def __init__(self, callback=None, **kwargs):
         '''
         Init the instance of Sender.
         '''
         super(UploadThread, self).__init__()
-        #CHANGE: in order to wait all rquest thread finish.
-        #self.daemon = True
+        # CHANGE: in order to wait all rquest thread finish.
+        # self.daemon = True
         self.kwargs = kwargs
         self.callback = callback
         self.is_stop = False
@@ -404,7 +419,7 @@ class UploadThread(threading.Thread):
             elif self.kwargs['payload']['result'] == 'fail':
                 if self.basicPayloadRequest(**self.kwargs):
                     self.extrasRequest(**self.kwargs)
-            elif self.kwargs['payload']['result'] == 'error':       
+            elif self.kwargs['payload']['result'] == 'error':
                 if self.basicPayloadRequest(**self.kwargs):
                     self.extrasRequest(**self.kwargs)
         except Exception, e:
@@ -423,9 +438,9 @@ class UploadThread(threading.Thread):
         headers = {'content-type': 'application/json', 'accept': 'application/json'}
         result_url = kwargs.pop('result_url')
         token = kwargs.pop('token')
-        values = json.dumps({'subc':'update','token':token, 'data': kwargs['payload']})
+        values = json.dumps({'subc': 'update', 'token': token, 'data': kwargs['payload']})
         ret = request(method='post', url=result_url, data=values, headers=headers, timeout=REQ_TIMEOUT)
-        #{u'msg': u'', u'data': {}, u'result': u'ok'}
+        # {u'msg': u'', u'data': {}, u'result': u'ok'}
         try:
             if ret['result'] == 'ok':
                 return True
@@ -438,20 +453,22 @@ class UploadThread(threading.Thread):
         token = kwargs.pop('token')
         log = kwargs['extras']['log']
         snapshot = kwargs['extras']['screenshot_at_last']
-        #logger.debug('snapshot upload: ' + snapshot)
+        # logger.debug('snapshot upload: ' + snapshot)
         ##snapshot = kwargs['extras']['screenshot_at_failure']
         try:
             files = {'file': open(snapshot, 'rb')}
-            headers = {'content-type': 'image/png','Ext-Type':'%s%s%s' % ('expect', ':', 'step'), 'accept': 'application/json'}
+            headers = {'content-type': 'image/png', 'Ext-Type': '%s%s%s' % ('expect', ':', 'step'),
+                       'accept': 'application/json'}
             ret = request(method='put', url=file_url, headers=headers, data=files['file'], timeout=10)
         except Exception, e:
             logger.debug('error: extraRequest snapshot\n%s' % str(e))
-        headers = {'content-type': 'application/zip',  'accept': 'application/json'}
+        headers = {'content-type': 'application/zip', 'accept': 'application/json'}
         try:
             files = {'file': open(log, 'rb')}
             ret = request(method='put', url=file_url, headers=headers, data=files['file'], timeout=10)
         except Exception, e:
             logger.debug('error: extraRequest log\n%s' % str(e))
+
     def stop(self):
         '''
         Stop the thread.

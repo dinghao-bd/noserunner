@@ -11,6 +11,7 @@ from xmlreportplugin import XmlReporterPlugin
 launcher of testing.
 '''
 
+
 def showUsage():
     print 'usage:'
     print '\tpython runtests.py [-h|--help] [--cycle CYCLE] [--duration DURATION_TIME] [--timeout TIMEOUT_VALUE_SECONDS] [--livereport] [--server-config REPORT_CONFIG] [--client-config DEVICE_CONFIG] [,[argv]]\n\n'
@@ -30,6 +31,7 @@ def showUsage():
     print '\targv                  Additional arguments accepted by nose\n'
     exit(1)
 
+
 DEFAULT_VERBOSITY = '2'
 if __name__ == '__main__':
     if '-h' in sys.argv or '--help' in sys.argv: showUsage()
@@ -45,7 +47,7 @@ if __name__ == '__main__':
         arg_copy.insert(2, '--with-live-reporter')
         if '--cycle' in arg_copy:
             index = arg_copy.index('--cycle')
-            cycle = int(arg_copy[index+1])
+            cycle = int(arg_copy[index + 1])
             arg_copy[index] = '--icycle'
         if '--verbosity' not in arg_copy:
             arg_copy.append('--verbosity')

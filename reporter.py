@@ -325,7 +325,7 @@ class TestCaseContext(object):
     @property
     def case_report_dir_name(self):
         self.__case_report_dir_name = '%s%s%s' % (
-        self.__case_dir_name, '@', str(self.__case_start_time).replace(' ', '_'))
+            self.__case_dir_name, '@', str(self.__case_start_time).replace(' ', '_'))
         return self.__case_report_dir_name
 
     @property
@@ -394,7 +394,7 @@ class Timer(object):
 
     def progress(self):
         p = '%0.2f' % (
-        float((datetime.datetime.now() - self.__starttime).total_seconds()) / (self.__duration.total_seconds()))
+            float((datetime.datetime.now() - self.__starttime).total_seconds()) / (self.__duration.total_seconds()))
         if float(p) <= float(0):
             return '0.01'
         if float(p) > float(1.0):

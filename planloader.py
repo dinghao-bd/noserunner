@@ -23,6 +23,7 @@ def timeout(timeout=180):
     '''
     decorator for tiemout
     '''
+
     def func_wrapper(func):
         def arguments_wrapper(*args, **kwargs):
             q = Queue()
@@ -36,34 +37,42 @@ def timeout(timeout=180):
             if error is not None:
                 exc_type, exc_value, tb = error
                 raise exc_type, exc_value, tb
+
         return wraps(func)(arguments_wrapper)
+
     return func_wrapper
+
 
 class TimeoutException(AssertionError):
     '''
     timeout exception
     '''
-    def __init__(self, value = 'test Case Time Out'):
+
+    def __init__(self, value='test Case Time Out'):
         self.value = value
 
     def __str__(self):
-       return repr(self.value)
+        return repr(self.value)
+
 
 class LoadException(AssertionError):
     '''
     test suite load error
     '''
-    def __init__(self, value = 'test suite load error'):
+
+    def __init__(self, value='test suite load error'):
         self.value = value
 
     def __str__(self):
-       return 'runner exited with loading test suite error:\n\t%s' % self.value
+        return 'runner exited with loading test suite error:\n\t%s' % self.value
+
 
 class CaseThread(threading.Thread):
     '''
     thread used to run test method
     '''
-    def __init__(self, q=None , func=None, args=(), kwargs={}):
+
+    def __init__(self, q=None, func=None, args=(), kwargs={}):
         threading.Thread.__init__(self)
         self.daemon = True
         self.__q = q
@@ -77,6 +86,7 @@ class CaseThread(threading.Thread):
             self.__q.put(None)
         except:
             self.__q.put(sys.exc_info())
+
 
 class PlanLoaderPlugin(nose.plugins.Plugin):
     '''
@@ -105,7 +115,6 @@ class PlanLoaderPlugin(nose.plugins.Plugin):
                           dest='timeout', default=180,
                           help="the value of timeout for each test case method. 180 seconds as default")
 
-
     def configure(self, options, conf):
         '''
         Configure plugin.
@@ -121,20 +130,19 @@ class PlanLoaderPlugin(nose.plugins.Plugin):
         if not os.path.exists(self.plan_file):
             raise Exception('file not found: %s' % self.plan_file)
 
-
     def __getTestsFromPlanFile(self, plan_file_path, section_name, cycle):
         '''
         load test sequence list from plan file 
         '''
-        #tests = []
-        #parser = ConfigParser.ConfigParser(dict_type=OrderedDict)
-        #parser.optionxform = lambda x: x
-        #parser.read(plan_file_path)
-        #tests = parser.items(section_name)
+        # tests = []
+        # parser = ConfigParser.ConfigParser(dict_type=OrderedDict)
+        # parser.optionxform = lambda x: x
+        # parser.read(plan_file_path)
+        # tests = parser.items(section_name)
         tests = readTestsFromConfigFile(plan_file_path, section_name)
         n = 1
-        while n <= int(cycle): 
-            for (k,v) in tests:
+        while n <= int(cycle):
+            for (k, v) in tests:
                 for i in range(int(v)):
                     yield k
             n += 1
@@ -144,6 +152,7 @@ class PlanLoaderPlugin(nose.plugins.Plugin):
         support order in test suite.
         """
         self.loader = loader
+
         def func_wrapper(func):
             def arguments_wrapper(*args, **kwargs):
                 ret = None
@@ -152,9 +161,10 @@ class PlanLoaderPlugin(nose.plugins.Plugin):
                 except:
                     pass
                 return ret
-            return arguments_wrapper
-        self.loader.suiteClass.findContext = func_wrapper(self.loader.suiteClass.findContext)
 
+            return arguments_wrapper
+
+        self.loader.suiteClass.findContext = func_wrapper(self.loader.suiteClass.findContext)
 
     def loadTestsFromNames(self, names, module=None):
         '''
@@ -162,7 +172,6 @@ class PlanLoaderPlugin(nose.plugins.Plugin):
         '''
         names = self.__getTestsFromPlanFile(plan_file_path=self.plan_file, section_name='tests', cycle=self.loops)
         return (None, names)
-
 
     def loadTestsFromName(self, name, module=None, discovered=False):
         try:
@@ -179,7 +188,8 @@ class PlanLoaderPlugin(nose.plugins.Plugin):
                 wrapped_m = timeout(timeout=self.timeout)(origin_m)
                 setattr(s, s._testMethodName, wrapped_m)
             else:
-                self.__injectTimeout(s) 
+                self.__injectTimeout(s)
+
 
 def readTestsFromConfigFile(name, section):
     '''
@@ -219,11 +229,13 @@ def readTestsFromConfigFile(name, section):
         f.close()
     return tests
 
+
 def _isSection(s):
     s = string.strip(s)
     if _isComment(s):
         return False
     return len(s) >= 3 and s[0] == '[' and s[-1:] == ']' and len(string.strip(s[1:-1])) > 0
+
 
 def _getSection(s):
     s = string.strip(s)
@@ -232,6 +244,7 @@ def _getSection(s):
     else:
         return None
 
+
 def _isOption(s):
     s = string.strip(s)
     if _isComment(s):
@@ -239,9 +252,11 @@ def _isOption(s):
     ls = string.split(s, '=')
     return len(ls) == 2 and len(string.strip(ls[0])) > 0 and len(string.strip(ls[1])) > 0
 
+
 def _isComment(s):
     s = string.strip(s)
     return len(s) > 0 and s[0] == '#'
+
 
 def _getOption(s):
     if _isOption(s):

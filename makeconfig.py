@@ -3,12 +3,15 @@
 import os, time, sys, copy
 from tools import AdbCommand
 import ConfigParser
+
 '''
 script to generate device config file which need by report server
 '''
 
 CONFIG_BASIC = {'product': None, 'revision': None, 'deviceid': None, 'screen_width': None, 'screen_height': None}
 DEFAULT_CONFIG_NAME = 'devconfig'
+
+
 def show_usage():
     print 'usage:'
     print '\tpython makeconfig.py [-h|--help] <-s DEVICE_SERIAL_NUMBER> [-f CONFIG_FILE_NAME]\n\n'
@@ -19,6 +22,7 @@ def show_usage():
     print '\t-s DEVICE_SERIAL_NUMBER       Set the device serial number list by adb devices\n'
     print '\t-f CONFIG_FILE_NAME           Set the name of config file which to be created\n'
     exit(1)
+
 
 def getDevices():
     devices = {}
@@ -34,7 +38,7 @@ def getDevices():
 
 
 def getDeviceProps(serial):
-    #global CONFIG
+    # global CONFIG
     CONFIG = copy.copy(CONFIG_BASIC)
     CONFIG['deviceid'] = serial
     product = AdbCommand('adb -s %s shell getprop ro.product.device' % serial, retry=2, timeout=5).run()
@@ -55,7 +59,7 @@ def getDeviceProps(serial):
                         ___ = __.strip().split()
                         ___.remove('real')
                         ___.remove('x')
-                        CONFIG['screen_width'] , CONFIG['screen_height'] = ___
+                        CONFIG['screen_width'], CONFIG['screen_height'] = ___
                         break
     return CONFIG
 
@@ -71,6 +75,7 @@ def createFile(config, target_file):
         p.write(localfile)
     print 'device config file \'%s\' created successfully' % target_file
 
+
 def createConfig(serial=None, target_file=None):
     devices = getDevices()
     if not devices:
@@ -84,7 +89,7 @@ def createConfig(serial=None, target_file=None):
             if not target_file:
                 target_file = '%s.%s' % (serial, DEFAULT_CONFIG_NAME)
             createFile(config_dict, target_file)
-    else:           
+    else:
         if serial in devices.keys():
             if devices[serial] != 'device':
                 raise Exception('device status error: %s' % devices[serial])
@@ -103,10 +108,10 @@ if __name__ == '__main__':
     file_name = None
     if '-f' in sys.argv:
         index = sys.argv.index('-f')
-        file_name = sys.argv[int(index)+1]
+        file_name = sys.argv[int(index) + 1]
 
     if '-s' in sys.argv:
         index = sys.argv.index('-s')
-        serial_no = sys.argv[int(index)+1]
+        serial_no = sys.argv[int(index) + 1]
 
     createConfig(serial=serial_no, target_file=file_name)

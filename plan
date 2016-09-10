@@ -1,17 +1,17 @@
 [tests]
 #common define
-sample.testcases.phone.Phone.testCall = 2
-sample.testcases.browser.Browser.testOpenBrowser = 2
-sample.testcases.inst.Caculator.testAsAttributeSet = 1
+scripts.testcases.phone.Phone.testCall = 2
+scripts.testcases.browser.Browser.testOpenBrowser = 2
+scripts.testcases.inst.Caculator.testAsAttributeSet = 1
 
 ##common for instrumentation 
-sample.testcases.inst.Caculator.testFindEncodingByName = 1
+scripts.testcases.inst.Caculator.testFindEncodingByName = 1
 
 ##special for instrumentation 
-sample.testcases.inst_1.Caculator.testCaculatorA = 1
-sample.testcases.inst_1.Caculator.testCaculatorB = 1
+scripts.testcases.inst_1.Caculator.testCaculatorA = 1
+scripts.testcases.inst_1.Caculator.testCaculatorB = 1
 
 ##special for instrumentation 
-sample.android.util.cts.XmlTest.testAsAttributeSet = 1
-sample.android.util.cts.XmlTest.testFindEncodingByName = 1
+scripts.android.util.cts.XmlTest.testAsAttributeSet = 1
+scripts.android.util.cts.XmlTest.testFindEncodingByName = 1
 
