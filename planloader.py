@@ -20,9 +20,10 @@ log = logging.getLogger(__name__)
 
 
 def timeout(timeout=180):
-    '''
-    decorator for tiemout
-    '''
+    """
+    decorator for timeout
+    :param timeout: * ms
+    """
 
     def func_wrapper(func):
         def arguments_wrapper(*args, **kwargs):
@@ -44,9 +45,9 @@ def timeout(timeout=180):
 
 
 class TimeoutException(AssertionError):
-    '''
+    """
     timeout exception
-    '''
+    """
 
     def __init__(self, value='test Case Time Out'):
         self.value = value
@@ -56,9 +57,9 @@ class TimeoutException(AssertionError):
 
 
 class LoadException(AssertionError):
-    '''
+    """
     test suite load error
-    '''
+    """
 
     def __init__(self, value='test suite load error'):
         self.value = value
@@ -68,9 +69,9 @@ class LoadException(AssertionError):
 
 
 class CaseThread(threading.Thread):
-    '''
+    """
     thread used to run test method
-    '''
+    """
 
     def __init__(self, q=None, func=None, args=(), kwargs={}):
         threading.Thread.__init__(self)
@@ -89,19 +90,19 @@ class CaseThread(threading.Thread):
 
 
 class PlanLoaderPlugin(nose.plugins.Plugin):
-    '''
+    """
     test loader plugin. allow to specify a test plan file with format:
     [tests]
     packagename.modulename.classname.testName = 10
-    packagename.modulename.classname.testName = 20 
-    '''
+    packagename.modulename.classname.testName = 20
+    """
     name = 'plan-loader'
     planfile = None
 
     def options(self, parser, env):
-        '''
+        """
         Register commandline options.
-        '''
+        """
         super(PlanLoaderPlugin, self).options(parser, env)
         parser.add_option('--plan-file', action='store', type='string', metavar="STRING",
                           dest='plan_file', default='plan',
@@ -116,9 +117,9 @@ class PlanLoaderPlugin(nose.plugins.Plugin):
                           help="the value of timeout for each test case method. 180 seconds as default")
 
     def configure(self, options, conf):
-        '''
+        """
         Configure plugin.
-        '''
+        """
         super(PlanLoaderPlugin, self).configure(options, conf)
         self.conf = conf
         self.loops = options.loops
@@ -131,9 +132,9 @@ class PlanLoaderPlugin(nose.plugins.Plugin):
             raise Exception('file not found: %s' % self.plan_file)
 
     def __getTestsFromPlanFile(self, plan_file_path, section_name, cycle):
-        '''
-        load test sequence list from plan file 
-        '''
+        """
+        load test sequence list from plan file
+        """
         # tests = []
         # parser = ConfigParser.ConfigParser(dict_type=OrderedDict)
         # parser.optionxform = lambda x: x
@@ -167,9 +168,9 @@ class PlanLoaderPlugin(nose.plugins.Plugin):
         self.loader.suiteClass.findContext = func_wrapper(self.loader.suiteClass.findContext)
 
     def loadTestsFromNames(self, names, module=None):
-        '''
+        """
         replace the way of loading test case using plan file.
-        '''
+        """
         names = self.__getTestsFromPlanFile(plan_file_path=self.plan_file, section_name='tests', cycle=self.loops)
         return (None, names)
 
@@ -192,13 +193,13 @@ class PlanLoaderPlugin(nose.plugins.Plugin):
 
 
 def readTestsFromConfigFile(name, section):
-    '''
+    """
     Get test case list from test case plan file.
     @type name: string
     @param name: the path of test case plan file
     @rtype: list
     @return: a list of test case
-    '''
+    """
     if not os.path.exists(name):
         sys.stderr.write('Plan file does not exists')
         sys.exit(1)

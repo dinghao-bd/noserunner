@@ -10,7 +10,8 @@ from nose.plugins import Plugin
 
 
 class HtmlOutput(Plugin):
-    """Output test results as ugly, unstyled html.
+    """
+    Output test results as ugly, unstyled html.
     """
 
     name = 'html-output'

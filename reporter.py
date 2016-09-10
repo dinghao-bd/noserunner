@@ -23,45 +23,45 @@ from os.path import join, exists, dirname
 from client import ReportClient
 
 LOCATION_NOT_FOUND_EXCEPTION = '%s not found.'
-'''error msg if adb not found'''
+"""error msg if adb not found"""
 
 TAG = '%s%s%s' % ('-' * 18, 'live report plugin', '-' * 18)
-'''global log output tag'''
+"""global log output tag"""
 
 TIME_STAMP_FORMAT = '%Y-%m-%d %H:%M:%S'
-'''global time stamp format'''
+"""global time stamp format"""
 
 OUTPUT_FILE_NAME = 'result.txt'
-'''global test result output file name'''
+"""global test result output file name"""
 
 LOGCAT_FILE_NAME = 'logcat.txt'
-'''global logcat output name'''
+"""global logcat output name"""
 
 DMESGLOG_FILE_NAME = 'dmesg.txt'
-'''global kernel log output name'''
+"""global kernel log output name"""
 
 FAILURE_SNAPSHOT_NAME = 'failure.png'
-'''default string name of result file. can be modify by user-specify'''
+"""default string name of result file. can be modify by user-specify"""
 
 PASS_SNAPSHOT_NAME = 'pass.png'
-'''default string name of result file. can be modify by user-specify'''
+"""default string name of result file. can be modify by user-specify"""
 
 REPORT_TIME_STAMP_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 ANDROID_LOG_SHELL = '%s %s %s logcat -v time'
-'''android logcat shell command line'''
+"""android logcat shell command line"""
 
 ANDROID_KMSGLOG_SHELL = '%s %s %s shell cat /proc/kmsg'
-'''android kernel dmsg shell command line'''
+"""android kernel dmsg shell command line"""
 
 ANDROID_TOMBSTONE_PATH = '/data/tombstones'
-'''android native process crash log path'''
+"""android native process crash log path"""
 
 
 def _uniqueID():
-    '''
+    """
     return a unique id of test session.
-    '''
+    """
     return str(uuid.uuid1())
 
 
@@ -94,34 +94,34 @@ def _getDeviceConfiguration(config):
 
 
 def _time():
-    '''
+    """
     generic time stamp format
-    '''
+    """
     return str(datetime.datetime.now())
 
 
 def _reportTime(delay=0):
-    '''
+    """
     return time stamp format with REPORT_TIME_STAMP_FORMAT
-    '''
+    """
     if delay != 0:
         time.sleep(1)
     return time.strftime(REPORT_TIME_STAMP_FORMAT, time.localtime(time.time()))
 
 
 def _mkdir(path):
-    '''
+    """
     create directory as path
-    '''
+    """
     if not exists(path):
         os.makedirs(path)
     return path
 
 
 def _writeResultToFile(output, content):
-    '''
+    """
     Used to generated brief result to local result.txt file.
-    '''
+    """
     try:
         with open(output, 'a') as f:
             f.write('%s%s' % (json.dumps(content), os.linesep))
@@ -130,17 +130,17 @@ def _writeResultToFile(output, content):
 
 
 def _formatOutput(name, etype, err):
-    '''
+    """
     change the output format of exception
-    '''
+    """
     exception_text = traceback.format_exception(*err)
     return ''.join(exception_text).replace('\n', '\r\n')
 
 
 def _zipFolder(folder_name, file_name, includeEmptyDIr=False):
-    '''
+    """
     create a zip file for folder
-    '''
+    """
     empty_dirs = []
     try:
         ziper = zipfile.ZipFile(file_name, 'w', zipfile.ZIP_DEFLATED)
@@ -163,17 +163,17 @@ def _zipFolder(folder_name, file_name, includeEmptyDIr=False):
 
 
 def _isExecutable(exe):
-    '''
+    """
     return True if program is executable.
-    '''
+    """
     return os.path.isfile(exe) and os.access(exe, os.X_OK)
 
 
 def _findExetuable(program):
-    '''
+    """
     return the absolute path of executable program if the program available.
     else raise Exception.
-    '''
+    """
     program_path, program_name = os.path.split(program)
     if program_path:
         if _isExecutable(program):
@@ -188,9 +188,9 @@ def _findExetuable(program):
 
 
 def _makeLog(path, bridge='adb', serial=None, result='failure'):
-    '''
+    """
     pull log/snapshot from device to local report folder
-    '''
+    """
     path = _mkdir(path)
     exe = _findExetuable(bridge)
     snapshot_name = '%s%s%s' % (result, '.', 'png')
@@ -211,9 +211,9 @@ def _makeLog(path, bridge='adb', serial=None, result='failure'):
 
 
 class TestCounter(object):
-    '''
+    """
     Test session counter.
-    '''
+    """
 
     def __init__(self, sid=None, tid=0, cid=0, cycles=None):
         self.__sid = sid if sid else _uniqueID()
@@ -223,22 +223,22 @@ class TestCounter(object):
 
     @property
     def sid(self):
-        '''
+        """
         return session id
-        '''
+        """
         return self.__sid
 
     def next_tid(self):
-        '''
+        """
         generated test case id
-        '''
+        """
         self.__tid += 1
         return self.__tid
 
     def next_cid(self):
-        '''
+        """
         generated test case id
-        '''
+        """
         self.__cid += 1
         return self.__cid
 
@@ -255,24 +255,24 @@ class TestCounter(object):
             return True
 
     def total(self):
-        '''
+        """
         return the number of test case
-        '''
+        """
         return self.__tid
 
     def reset(self):
-        '''
+        """
         reset test case id
-        '''
+        """
         self.__tid = 0
 
 
 class TestCaseContext(object):
-    '''
+    """
     Test case context. test case extends from unittest.TestCase can refer it by self.contexts.
     The instance of it is injected to the context of test case instance by plugin when prepareTestCase.
     
-    '''
+    """
 
     def __init__(self, output_failures, output_errors, output_pass):
         self.__output_failures = output_failures
@@ -611,9 +611,9 @@ class ReporterPlugin(nose.plugins.Plugin):
                                   e.g. --duration=2D09H30M12S, which means 2 days, 09 hours, 30 minutes and 12 seconds')
 
     def __validate_duration(self, option, opt, value, parser):
-        '''
+        """
         verify date time format
-        '''
+        """
         value = string.lower(value)
         begin = 0
         days = hours = minutes = seconds = 0
@@ -685,9 +685,9 @@ class ReporterPlugin(nose.plugins.Plugin):
         self.stream = stream
 
     def __write(self, output):
-        '''
+        """
         Write output as content
-        '''
+        """
         try:
             self.stream.write(output)
         except Exception, e:
@@ -702,9 +702,9 @@ class ReporterPlugin(nose.plugins.Plugin):
         return output
 
     def prepareTest(self, test):
-        '''
+        """
         enable log handler.
-        '''
+        """
         output = ''
         try:
             output = self.__pingXDB()
@@ -775,9 +775,9 @@ class ReporterPlugin(nose.plugins.Plugin):
             self.__write('#%s %s ' % (str(self.tid), str(ctx.case_start_time)))
 
     def handleFailure(self, test, err):
-        '''
+        """
         Called on addFailure. To handle the failure yourself and prevent normal failure processing, return a true value.
-        '''
+        """
         self.result_properties.clear()
         ctx = self.__getTestCaseContext(test)
         try:
@@ -799,9 +799,9 @@ class ReporterPlugin(nose.plugins.Plugin):
                                        })
 
     def handleError(self, test, err):
-        '''
+        """
         Called on addError. To handle the failure yourself and prevent normal error processing, return a true value.
-        '''
+        """
         self.result_properties.clear()
         ctx = self.__getTestCaseContext(test)
         try:

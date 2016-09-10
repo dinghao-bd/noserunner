@@ -7,9 +7,9 @@ from planloader import PlanLoaderPlugin
 from reporter import ReporterPlugin
 from xmlreportplugin import XmlReporterPlugin
 
-'''
+"""
 launcher of testing.
-'''
+"""
 
 
 def showUsage():

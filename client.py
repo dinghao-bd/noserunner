@@ -66,16 +66,16 @@ REQ_TIMEOUT = 3
 # response payload : {'result': ok|error, msg': log_error}
 
 def reporttime():
-    '''
+    """
     return time stamp format with REPORT_TIME_STAMP_FORMAT
-    '''
+    """
     return time.strftime(REPORT_TIME_STAMP_FORMAT, time.localtime(time.time()))
 
 
 def getContentType(filename):
-    '''
+    """
     lists and converts supported file extensions to MIME type
-    '''
+    """
     ext = filename.split('.')[-1].lower()
     if ext == 'png': return 'image/png'
     if ext == 'gif': return 'image/gif'
@@ -86,9 +86,9 @@ def getContentType(filename):
 
 
 def fbuffer(f, chunk_size=1024):
-    '''
+    """
     read source file. default chunk size is 1024b.
-    '''
+    """
     while True:
         chunk = f.read(chunk_size)
         if not chunk: break
@@ -101,9 +101,9 @@ class MemoryZip(object):
         self.memory_zip = StringIO.StringIO()
 
     def appendFile(self, file_path, file_name=None):
-        '''
+        """
         read local source file and add into memory
-        '''
+        """
         if file_name is None:
             p, fn = os.path.split(file_path)
         else:
@@ -113,10 +113,10 @@ class MemoryZip(object):
         return self
 
     def append(self, filename_in_zip, file_contents):
-        '''
+        """
         Appends a file with name filename_in_zip and contents of
         file_contents to the in-memory zip
-        '''
+        """
         # Get a handle to the in-memory zip in append mode
         zf = zipfile.ZipFile(self.memory_zip, "a", zipfile.ZIP_DEFLATED, False)
         # Write the file to the in-memory zip
@@ -128,16 +128,16 @@ class MemoryZip(object):
         return self
 
     def read(self):
-        '''
+        """
         Returns a string with the contents of the in-memory zip
-        '''
+        """
         self.memory_zip.seek(0)
         return self.memory_zip.read()
 
     def writetofile(self, filename):
-        '''
+        """
         Writes the in-memory zip to a file.
-        '''
+        """
         f = file(filename, "wb")
         f.write(self.read())
         f.close()
@@ -146,7 +146,7 @@ class MemoryZip(object):
 class Authentication(object):
     @staticmethod
     def regist(url, session_info, **kwargs):
-        '''
+        """
         regist session on server
         ##session_id, token, session_info
         session info        { 'subc':'create',
@@ -158,7 +158,7 @@ class Authentication(object):
                                                    }
                                      }
                             }
-        '''
+        """
         values = json.dumps(session_info)
         headers = {'content-type': 'application/json', 'accept': 'application/json'}
         r = request(method='post', url=url, data=values, headers=headers, timeout=AUTH_REQ_TIMEOUT)
@@ -166,9 +166,9 @@ class Authentication(object):
 
     @staticmethod
     def getToken(url, username, password, appid='01', **kwargs):
-        '''
+        """
         Get the session token from server.
-        '''
+        """
         ret = None
         m = hashlib.md5()
         m.update(password)
@@ -180,7 +180,7 @@ class Authentication(object):
 
 
 def retry(tries, delay=1, backoff=2):
-    '''
+    """
     retries a function or method until it returns True.
     delay sets the initial delay, and backoff sets how much the delay should
     lengthen after each failure. backoff must be greater than 1, or else it
@@ -193,7 +193,7 @@ def retry(tries, delay=1, backoff=2):
     @param backoff: used to make the retry duration wait longer
     @rtype: boolean
     @return: True if the function return True. else return False
-    '''
+    """
 
     if backoff <= 1:
         raise ValueError("backoff must be greater than 1")
@@ -225,14 +225,14 @@ def retry(tries, delay=1, backoff=2):
 
 @retry(3)
 def request(method, url, data=None, **kwargs):
-    '''
+    """
     Sends a request.
     :param url: URL for the request.    
     :param method: the request type of http method(get, post, put, delete)
     :param data: (optional) Dictionary, bytes, or file-like object to send in the body of http protocol
     :param \*\*kwargs: Optional arguments that request takes
     :return: dict or None 
-    '''
+    """
     ret = None
     m = method.lower()
     if m in ('get', 'post', 'put', 'delete'):
@@ -264,14 +264,14 @@ REQ_TIMEOUT = 3
 
 
 class ReportClient(object):
-    '''
+    """
     client to communicate with server
-    '''
+    """
 
     def __init__(self, config=None, **kwargs):
-        '''
+        """
         init with server.config
-        '''
+        """
         if kwargs:
             self.__dict__.update(kwargs)
         self.token = None
@@ -288,9 +288,9 @@ class ReportClient(object):
         pass
 
     def regist(self, **kwargs):
-        '''
+        """
         get token from server by server.config or user-input
-        '''
+        """
         m = hashlib.md5()
         m.update(self.__dict__['password'])
         pwd = m.hexdigest()
@@ -308,7 +308,7 @@ class ReportClient(object):
         return self.token
 
     def createSession(self, **kwargs):
-        '''
+        """
         session_properties = {    'sid': self.session_id,\
                                   'product': 'p',\
                                   'revision': 'r',\
@@ -316,7 +316,7 @@ class ReportClient(object):
                                   'planname': 'test.plan',\
                                   'starttime': self.conf.test_start_time
                                  }
-        '''
+        """
         self.session_id = kwargs.pop('sid')
         url = self.__dict__['session_create'] % self.session_id
         headers = {'content-type': 'application/json', 'accept': 'application/json'}
@@ -355,7 +355,7 @@ class ReportClient(object):
         UploadThread(**kwargs).start()
 
     def updateSession(self, **kwargs):
-        '''
+        """
         session_properties = {    'sid': self.session_id,\
                                   'product': 'p',\
                                   'revision': 'r',\
@@ -363,7 +363,7 @@ class ReportClient(object):
                                   'planname': 'test.plan',\
                                   'starttime': self.conf.test_start_time
                                  }
-        '''
+        """
         self.session_id = kwargs.pop('sid')
         url = self.__dict__['session_update'] % self.session_id
         headers = {'content-type': 'application/json', 'accept': 'application/json'}
@@ -393,14 +393,14 @@ class ReportClient(object):
 
 
 class UploadThread(threading.Thread):
-    '''
+    """
     Thread for uploading result.
-    '''
+    """
 
     def __init__(self, callback=None, **kwargs):
-        '''
+        """
         Init the instance of Sender.
-        '''
+        """
         super(UploadThread, self).__init__()
         # CHANGE: in order to wait all rquest thread finish.
         # self.daemon = True
@@ -409,9 +409,9 @@ class UploadThread(threading.Thread):
         self.is_stop = False
 
     def run(self):
-        '''
+        """
         The work method.
-        '''
+        """
         try:
             if self.kwargs['payload']['result'] == 'pass':
                 if self.basicPayloadRequest(**self.kwargs):
@@ -470,7 +470,7 @@ class UploadThread(threading.Thread):
             logger.debug('error: extraRequest log\n%s' % str(e))
 
     def stop(self):
-        '''
+        """
         Stop the thread.
-        '''
+        """
         self.is_stop = True
