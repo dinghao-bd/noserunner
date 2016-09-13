@@ -12,6 +12,7 @@ launcher of testing.
 """
 
 
+
 def showUsage():
     print 'usage:'
     print '\tpython runtests.py [-h|--help] [--cycle CYCLE] [--duration DURATION_TIME] [--timeout TIMEOUT_VALUE_SECONDS] [--livereport] [--server-config REPORT_CONFIG] [--client-config DEVICE_CONFIG] [,[argv]]\n\n'
