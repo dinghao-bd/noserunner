@@ -1,24 +1,17 @@
-"""This is a very basic example of a plugin that controls all test
-output. In this case, it formats the output as ugly unstyled html.
-
-Upgrading this plugin into one that uses a template and css to produce
-nice-looking, easily-modifiable html output is left as an exercise for
-the reader who would like to see his or her name in the nose AUTHORS file.
-"""
+#!/usr/bin/python
+# -*- coding:utf-8 -*-
 import traceback
 from nose.plugins import Plugin
 
 
-class HtmlOutput(Plugin):
+class htmlReportPlugin(Plugin):
     """
-    Output test results as ugly, unstyled html.
+    Convert test result into html format
     """
-
-    name = 'html-output'
-    score = 2  # run late
+    name = "html-report"
 
     def __init__(self):
-        super(HtmlOutput, self).__init__()
+        super(htmlReportPlugin, self).__init__()
         self.html = ['<html><head>',
                      '<title>Test output</title>',
                      '</head><body>']
